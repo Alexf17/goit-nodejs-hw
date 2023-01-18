@@ -3,7 +3,7 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", false);
 
-async function start() {
+(async function () {
   try {
     await mongoose.connect(process.env.MONGO_URL);
     console.log("Database connection successful");
@@ -14,6 +14,4 @@ async function start() {
     console.error("Error while connecting mongodb", error.message);
     process.exit(1);
   }
-}
-
-start();
+})();

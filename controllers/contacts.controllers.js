@@ -11,7 +11,7 @@ async function getContact(req, res, next) {
   const contact = await Contact.findById(contactId);
   console.log(contact);
   if (!contact) {
-    return next(res.status(404).json({ message: "Not found" }));
+    return res.status(404).json({ message: "Not found" });
   }
   return res.status(200).json(contact);
 }
@@ -34,9 +34,7 @@ async function deleteContact(req, res, next) {
 async function updateContact(req, res, next) {
   const { contactId } = req.params;
   const body = req.body;
-  if (!body) {
-    return res.status(400).json({ message: "missing fields" });
-  }
+
   const updateContacts = await Contact.findByIdAndUpdate(contactId, body, {
     new: true,
   });
@@ -51,9 +49,7 @@ async function updateContact(req, res, next) {
 async function updateStatusContact(req, res, next) {
   const { contactId } = req.params;
   const body = req.body;
-  if (!body) {
-    return res.status(400).json({ message: "missing field favorite" });
-  }
+
   const updatedStatusContact = await Contact.findByIdAndUpdate(
     contactId,
     body,
