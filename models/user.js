@@ -22,6 +22,10 @@ const schema = mongoose.Schema(
       type: String,
       default: null,
     },
+    contacts: {
+      type: [mongoose.Types.ObjectId],
+      rel: "contact",
+    },
   },
   { versionKey: false }
 );

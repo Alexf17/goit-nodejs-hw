@@ -1,12 +1,17 @@
 const bcrypt = require("bcrypt");
-const { User } = require("../models/users");
+const { User } = require("../models/user");
 const { HttpError } = require("../helpers");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+
+const { JWT_SECRET } = process.env;
 
 async function register(req, res, next) {
   const { email, password } = req.body;
 
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
+
   //   const savedUser = await User.create({ email, password });
   try {
     const savedUser = await User.create({ email, password: hashedPassword });
@@ -26,18 +31,35 @@ async function login(req, res, next) {
 
   const checkUser = await User.findOne({ email });
   if (!checkUser) {
-    throw new HttpError(401, "email is not valid");
+    throw new HttpError(401, "Email or password is wrong");
   }
 
   const isPasswordValid = await bcrypt.compare(password, checkUser.password);
   if (!isPasswordValid) {
-    throw new HttpError(401, "password is not valid");
+    throw new HttpError(401, "Email or password is wrong");
   }
-  res.json({
+  const token = jwt.sign({ id: checkUser._id }, JWT_SECRET, {
+    expiresIn: "10h",
+  });
+  return res.json({
     data: {
-      token: "<TOKEN>",
+      token,
+      user: { email },
     },
   });
 }
 
-module.exports = { register, login };
+async function logout(req, res, next) {
+  try {
+    const { _id } = req.user;
+    const user = await User.findByIdAndUpdate(_id, { token: null });
+    if (!user) {
+      throw HttpError(401, "Not authorized");
+    }
+    return res.status(204).json({ message: "No Content" });
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+}
+
+module.exports = { register, login, logout };

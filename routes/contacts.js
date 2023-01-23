@@ -8,23 +8,24 @@ const {
   deleteContact,
   createContact,
   updateStatusContact,
-} = require("../../controllers/contacts.controllers");
+} = require("../controllers/contacts.controllers");
 
-const { validationData, tryCatchWrapper } = require("../../middlewares/index");
-
+const { validationData, auth } = require("../middlewares/index");
+const { tryCatchWrapper } = require("../helpers/index");
 const {
   addContactValidation,
   updateContactValidation,
   updateFavoriteStatus,
-} = require("../../schemas/contacts");
+} = require("../schemas/contacts");
 
-router.get("/", tryCatchWrapper(getContacts));
+router.get("/", tryCatchWrapper(auth), tryCatchWrapper(getContacts));
 // router.get("/", getContacts);
 
-router.get("/:contactId", tryCatchWrapper(getContact));
+router.get("/:contactId", tryCatchWrapper(auth), tryCatchWrapper(getContact));
 
 router.post(
   "/",
+  tryCatchWrapper(auth),
   validationData(addContactValidation),
   tryCatchWrapper(createContact)
 );
@@ -33,12 +34,14 @@ router.delete("/:contactId", tryCatchWrapper(deleteContact));
 
 router.put(
   "/:contactId",
+  tryCatchWrapper(auth),
   validationData(updateContactValidation),
   tryCatchWrapper(updateContact)
 );
 
 router.patch(
   "/:contactId/favorite",
+  tryCatchWrapper(auth),
   validationData(updateFavoriteStatus),
   tryCatchWrapper(updateStatusContact)
 );
