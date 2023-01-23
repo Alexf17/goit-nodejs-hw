@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const { User } = require("../models/user");
-const { HttpError } = require("../helpers");
+const { HttpError } = require("../helpers/httpError");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
@@ -56,7 +56,7 @@ async function logout(req, res, next) {
     if (!user) {
       throw HttpError(401, "Not authorized");
     }
-    return res.status(204).json({ message: "No Content" });
+    return res.status(204).json();
   } catch (error) {
     res.status(404).json({ message: error.message });
   }

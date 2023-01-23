@@ -1,9 +1,3 @@
-function HttpError(status, message) {
-  const err = new Error(message);
-  err.status = status;
-  return err;
-}
-
 function tryCatchWrapper(endpointFn) {
   return async (req, res, next) => {
     try {
@@ -14,4 +8,4 @@ function tryCatchWrapper(endpointFn) {
   };
 }
 
-module.exports = { tryCatchWrapper, HttpError };
+module.exports = { tryCatchWrapper };
