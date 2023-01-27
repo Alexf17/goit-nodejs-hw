@@ -3,6 +3,7 @@ const { User } = require("../models/user");
 const { HttpError } = require("../helpers/httpError");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
+const gravatar = require("gravatar");
 
 const { JWT_SECRET } = process.env;
 
@@ -14,8 +15,15 @@ async function register(req, res, next) {
 
   //   const savedUser = await User.create({ email, password });
   try {
-    const savedUser = await User.create({ email, password: hashedPassword });
-    res.status(201).json({ data: { user: email, id: savedUser._id } });
+    const avatarURL = gravatar.url(email);
+    const savedUser = await User.create({
+      email,
+      password: hashedPassword,
+      avatarURL,
+    });
+    res
+      .status(201)
+      .json({ data: { user: email, id: savedUser._id, avatarURL } });
   } catch (error) {
     if (error.message.includes("E11000 duplicate key")) {
       throw new HttpError(409, "Email in use");
@@ -54,7 +62,7 @@ async function logout(req, res, next) {
     const { _id } = req.user;
     const user = await User.findByIdAndUpdate(_id, { token: null });
     if (!user) {
-      throw HttpError(401, "Not authorized");
+      throw new HttpError(401, "Not authorized");
     }
     return res.status(204).json();
   } catch (error) {

@@ -26,6 +26,9 @@ const schema = mongoose.Schema(
       type: [mongoose.Types.ObjectId],
       rel: "contact",
     },
+    avatarURL: {
+      type: String,
+    },
   },
   { versionKey: false }
 );
