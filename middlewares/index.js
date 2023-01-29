@@ -1,6 +1,8 @@
 const { HttpError } = require("../helpers/httpError");
 const jwt = require("jsonwebtoken");
 const { User } = require("../models/user");
+const multer = require("multer");
+const path = require("path");
 
 function validationData(schema) {
   return (req, res, next) => {
@@ -18,10 +20,10 @@ async function auth(req, res, next) {
   const [type, token] = authHeader.split(" ");
   // console.log("type", type);
   if (!token) {
-    throw HttpError(401, "No token provided");
+    throw new HttpError(401, "No token provided");
   }
   if (type !== "Bearer") {
-    throw HttpError(401, "Token type is not valid");
+    throw new HttpError(401, "Token type is not valid");
   }
 
   try {
@@ -34,14 +36,27 @@ async function auth(req, res, next) {
       error.name === "TokenExpiredError" ||
       error.name === "JsonWebTokenError"
     ) {
-      throw HttpError(401, "JWT token is not valid");
+      throw new HttpError(401, "JWT token is not valid");
     }
     throw error;
   }
   next();
 }
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.resolve(__dirname, "../tmp"));
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+  limits: { filSize: 2000 },
+});
+
+const upload = multer({ storage });
+
 module.exports = {
   validationData,
   auth,
+  upload,
 };

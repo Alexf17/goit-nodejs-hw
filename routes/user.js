@@ -4,8 +4,9 @@ const {
   getContacts,
   currentUser,
 } = require("../controllers/user.controllers");
+const { updateAvatar } = require("../controllers/updateAvatar");
 const { tryCatchWrapper } = require("../helpers/index");
-const { auth } = require("../middlewares/index");
+const { auth, upload } = require("../middlewares/index");
 
 const userRouter = express.Router();
 
@@ -23,6 +24,12 @@ userRouter.get(
   "/currentUser",
   tryCatchWrapper(auth),
   tryCatchWrapper(currentUser)
+);
+userRouter.patch(
+  "/avatars",
+  tryCatchWrapper(auth),
+  upload.single("avatar"),
+  tryCatchWrapper(updateAvatar)
 );
 
 module.exports = { userRouter };

@@ -25,16 +25,17 @@ async function getContacts(req, res, next) {
 
 async function currentUser(req, res, next) {
   const { user } = req;
-  const { email, subscription } = user;
+  const { email, subscription, avatarURL } = user;
 
   if (!user) {
-    throw HttpError(401, "Not authorized");
+    throw new HttpError(401, "Not authorized");
   }
   return res.status(200).json({
     data: {
       user: {
         subscription,
         email,
+        avatarURL,
       },
     },
   });
