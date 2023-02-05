@@ -11,6 +11,11 @@ const newUserSchema = Joi.object({
   subscription: Joi.string(),
 });
 
+const userMailValidation = Joi.object({
+  email: Joi.string().required(),
+});
+
 module.exports = {
   newUserSchema,
+  userMailValidation,
 };

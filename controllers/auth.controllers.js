@@ -4,6 +4,8 @@ const { HttpError } = require("../helpers/httpError");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const gravatar = require("gravatar");
+const { sendMail } = require("../helpers");
+const { v4 } = require("uuid");
 
 const { JWT_SECRET } = process.env;
 
@@ -15,11 +17,20 @@ async function register(req, res, next) {
 
   //   const savedUser = await User.create({ email, password });
   try {
+    const verificationToken = v4();
     const avatarURL = gravatar.url(email);
     const savedUser = await User.create({
       email,
       password: hashedPassword,
       avatarURL,
+      verificationToken,
+    });
+
+    await sendMail({
+      to: email,
+      subject: "Please confirm your email",
+      html: `<a href="http://localhost:3000/api/users/verify/${verificationToken}">Confirm your email</a>`,
+      text: "hi",
     });
     res
       .status(201)
@@ -41,11 +52,17 @@ async function login(req, res, next) {
   if (!checkUser) {
     throw new HttpError(401, "Email or password is wrong");
   }
+  if (!checkUser.verify) {
+    return res.status(401).json({
+      message: "Email is not verifyed. Please check your mail box",
+    });
+  }
 
   const isPasswordValid = await bcrypt.compare(password, checkUser.password);
   if (!isPasswordValid) {
     throw new HttpError(401, "Email or password is wrong");
   }
+
   const token = jwt.sign({ id: checkUser._id }, JWT_SECRET, {
     expiresIn: "10h",
   });
